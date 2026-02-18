@@ -20,7 +20,7 @@ function Home() {
     if(submit.length>0){
     axios
       .get(
-        `http://www.omdbapi.com/?apikey=4b9dc54&s=${submit}&page=${page}`,
+        `https://www.omdbapi.com/?apikey=4b9dc54&s=${submit}&page=${page}`,
       )
       .then((data) => {
         if (data.data.Response === "False") {
