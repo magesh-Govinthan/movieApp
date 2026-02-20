@@ -1,8 +1,6 @@
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import "./MovieDetail.css";
-import { FaStarAndCrescent } from "react-icons/fa";
-import { FaStar } from "react-icons/fa6";
 import { MovieContext } from "../context/MovieContext";
 
 function MovieDetail() {
@@ -13,7 +11,6 @@ function MovieDetail() {
       .get(`https://www.omdbapi.com/?apikey=4b9dc54&i=${id}`)
       .then((data) => setMovieDetail(data.data));
   }, []);
-  console.log(movieDetail);
 
   return (
     <div className="pro-parent">
@@ -27,9 +24,9 @@ function MovieDetail() {
           {movieDetail.Year}, {movieDetail.Genre}
         </span>
         <p>{movieDetail.Plot}</p>
-        <p>Rating:{movieDetail.imdbRating}/10</p>
-        <p>cast :</p>
-        <p>{movieDetail.Actors}</p>
+        <p>{movieDetail && movieDetail.imdbRating &&`Rating:${movieDetail.imdbRating}/10`}</p>
+        <p>{movieDetail && movieDetail.Actors && `cast:${ movieDetail.Actors}/10`}</p>
+       
       </div>
       </div>
     </div>

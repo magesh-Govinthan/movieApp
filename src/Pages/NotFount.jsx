@@ -1,27 +1,14 @@
 import React from "react";
 import "./NotFound.css";
-function NotFount({ message, err }) {
-  const handleClose = () => {
-    err(false);
-  };
+import { FaSadTear } from "react-icons/fa";
+function NotFount({ message, movieType, submit }) {
+  const errorMessage = message? `${message}` : `There is no ${movieType} under this input ${submit}`
+ 
   return (
+    <div className="parent-error">
     <div className="error">
-      <p style={{ fontWeight: "bold" }}>{message}</p>
-      <button
-        style={{
-          height: "30px",
-          padding: "5px 10px",
-          fontSize: "16px",
-          borderRadius: "7px",
-          border: "1px solid black",
-          background: "transparent",
-          color: "black",
-          fontWeight: "bold"
-        }}
-        onClick={() => handleClose()}
-      >
-        close
-      </button>
+      <p style={{ fontWeight: "bold" }}><FaSadTear className="color"/>{errorMessage}<FaSadTear className="color"/></p>
+    </div>
     </div>
   );
 }

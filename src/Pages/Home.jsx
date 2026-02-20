@@ -6,6 +6,7 @@ import { Outlet, useNavigate } from "react-router-dom";
 import { MovieContext } from "../context/MovieContext";
 import { FaAngleLeft, FaAngleRight, FaSearch } from "react-icons/fa";
 import NotFount from "./NotFount";
+import Loader from "./loader";
 
 function Home() {
   const { updateMovieId } = useContext(MovieContext);
@@ -16,34 +17,39 @@ function Home() {
   const [movieData, setMovieData] = useState([]);
   const [submit, setSubmit] = useState("");
   const [error, setError] = useState("");
-  const[movieType,setMovieType]=useState("");
+  const [movieType, setMovieType] = useState("");
+  const [loader, setLoader] = useState(false);
   useEffect(() => {
     if (submit.length > 0) {
+      setLoader(true);
       axios
         .get(`https://www.omdbapi.com/?apikey=4b9dc54&s=${submit}&page=${page}&type=${movieType}`)
         .then((data) => {
+          
           if (data.data.Response === "False") {
             setMovieData([]);
-            throw new Error(
-              "Response coming as incorrect datails,try searching",
-            );
+            setError(`${data?.data?.Error} try to search any other names`);
           } else {
             setError(false);
             setMovieData(data.data.Search);
-            setMovieSearchResult(data.data.totalResults);
+            setTimeout(() => {
+              setMovieSearchResult(data.data.totalResults);
+            },)
+           
 
             console.log(+movieSearchResult);
           }
 
           console.log(data);
+          setLoader(false);
         })
         .catch((err) => {
-          setError(`${err},Type the different Movie names`);
+           setLoader(false);
           setMovieSearchInput("");
         });
     }
-  }, [submit, page,movieType]);
-console.log(movieData);
+  }, [submit, page, movieType]);
+  console.log(movieData);
 
   const getPageRange = (cur, total) => {
     const pagesRange = [];
@@ -74,9 +80,16 @@ console.log(movieData);
 
   const handleSubmit = () => {
     setSubmit(movieSearchInput);
+    setMovieSearchInput('');
   };
   const handleMovieSearch = (e) => {
+
+    setMovieType('');
+    setSubmit('');
+    setError('');
     setMovieSearchInput(e.target.value);
+
+
   };
   const handlePrevious = () => {
     setPage((prev) => prev - 1);
@@ -93,8 +106,9 @@ console.log(movieData);
     setPage(item);
   };
   return (
+
+
     <>
-      {error && <NotFount message={error} err={setError} />}
       <div
         style={{
           background: "whitesmoke",
@@ -113,9 +127,10 @@ console.log(movieData);
               paddingTop: "20px",
             }}
           >
-            
+
             <input
               type="text"
+              value={movieSearchInput}
               placeholder="Search movie"
               onChange={(e) => handleMovieSearch(e)}
             />
@@ -128,66 +143,75 @@ console.log(movieData);
               <FaSearch />
               Search
             </button>
-            <select onChange={(e)=>setMovieType(e.target.value.toLowerCase())}>
-            <option  value="Movies">Movies</option>
-            <option value="Series">Series</option>
-            <option value="Episode">Episode</option>
-          </select>
+            <select onChange={(e) => setMovieType(e.target.value.toLowerCase())}>
+              <option defaultValue='select'>Select</option>
+              <option value="Movie">Movies</option>
+              <option value="Series">Series</option>
+              <option value="Episode">Episode</option>
+            </select>
           </div>
-          
+
         </div>
-        <div className="parent">
-          {movieData.length > 0 &&
-            movieData.map((item) => {
-              return (
-                <div
-                  onClick={() => handleMovie(item.imdbID)}
-                  className="cart-container"
-                >
-                  <div className="cart">
-                    <img src={item.Poster}></img>
-                    <p className="para1">{item.Title}</p>
-                    <p className="para2">{item.Year}</p>
-                  </div>
-                </div>
-              );
-            })}
-        </div>
-        {movieData.length > 0 && (
-          <div className="buttonClick">
-            <button
-              onClick={handlePrevious}
-              disabled={page === 1}
-              className="button"
-            >
-              <FaAngleLeft />
-            </button>
-            <div className="page">
-              {pagesRange.map((item) =>
-                item === "..." ? (
-                  <span className="span1">...</span>
-                ) : (
-                  <button
-                    className="button"
-                    style={{
-                      backgroundColor: item === page ? "green" : "lightgray",
-                    }}
-                    onClick={() => handlePageNum(item)}
-                  >
-                    {item}
-                  </button>
-                ),
-              )}
+        {
+          loader ? <Loader /> : <div>
+            <div className="parent">
+              {movieData.length > 0 &&
+                movieData.map((item) => {
+                  return (
+                    <div
+                      onClick={() => handleMovie(item.imdbID)}
+                      className="cart-container"
+                    >
+                      <div className="cart">
+                        <img src={item.Poster}></img>
+                        <p className="para1">{item.Title}</p>
+                        <p className="para2">{item.Year}</p>
+                      </div>
+                    </div>
+                  );
+                })}
             </div>
-            <button onClick={handleNext} className="button">
-              <FaAngleRight />
-            </button>
+            {movieData.length > 0 && (
+              <div className="buttonClick">
+                <button
+                  onClick={handlePrevious}
+                  disabled={page === 1}
+                  className="button"
+                >
+                  <FaAngleLeft />
+                </button>
+                <div className="page">
+                  {pagesRange.map((item) =>
+                    item === "..." ? (
+                      <span className="span1">...</span>
+                    ) : (
+                      <button
+                        className="button"
+                        style={{
+                          backgroundColor: item === page ? "green" : "lightgray",
+                        }}
+                        onClick={() => handlePageNum(item)}
+                      >
+                        {item}
+                      </button>
+                    ),
+                  )}
+                </div>
+                <button onClick={handleNext} className="button">
+                  <FaAngleRight />
+                </button>
+              </div>
+            )}
           </div>
-        )}
+        }
       </div>
+      {movieData.length === 0 && movieType !== 'select' && movieType !== '' && submit !== '' && <NotFount movieType={movieType} submit={submit} />}
+      {error && <NotFount message={error} />}
       <Outlet />
     </>
+
   );
+
 }
 
 export default Home;
