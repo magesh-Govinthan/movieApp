@@ -10,7 +10,7 @@ function MovieDetail() {
   const { id } = useContext(MovieContext);
   useEffect(() => {
     axios
-      .get(`http://www.omdbapi.com/?apikey=4b9dc54&i=${id}`)
+      .get(`https://www.omdbapi.com/?apikey=4b9dc54&i=${id}`)
       .then((data) => setMovieDetail(data.data));
   }, []);
   console.log(movieDetail);

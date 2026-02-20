@@ -14,34 +14,36 @@ function Home() {
   const [movieSearchResult, setMovieSearchResult] = useState("");
   const [movieSearchInput, setMovieSearchInput] = useState("");
   const [movieData, setMovieData] = useState([]);
-  const[submit,setSubmit]=useState("");
-  const[error,setError]=useState("");
+  const [submit, setSubmit] = useState("");
+  const [error, setError] = useState("");
+  const[movieType,setMovieType]=useState("");
   useEffect(() => {
-    if(submit.length>0){
-    axios
-      .get(
-        `https://www.omdbapi.com/?apikey=4b9dc54&s=${submit}&page=${page}`,
-      )
-      .then((data) => {
-        if (data.data.Response === "False") {
-          setMovieData([]);
-          throw new Error("Response coming as incorrect datails,try searching");
-          
-        } else {
-          setError(false);
-          setMovieData(data.data.Search);
-          setMovieSearchResult(data.data.totalResults);
+    if (submit.length > 0) {
+      axios
+        .get(`https://www.omdbapi.com/?apikey=4b9dc54&s=${submit}&page=${page}&type=${movieType}`)
+        .then((data) => {
+          if (data.data.Response === "False") {
+            setMovieData([]);
+            throw new Error(
+              "Response coming as incorrect datails,try searching",
+            );
+          } else {
+            setError(false);
+            setMovieData(data.data.Search);
+            setMovieSearchResult(data.data.totalResults);
 
-          console.log(+movieSearchResult);
-        }
+            console.log(+movieSearchResult);
+          }
 
-        console.log(data);
-      })
-      .catch((err) => {
-      setError(`${err},Type the different Movie names`);
-      setMovieSearchInput("");
-    });
-}}, [submit, page]);
+          console.log(data);
+        })
+        .catch((err) => {
+          setError(`${err},Type the different Movie names`);
+          setMovieSearchInput("");
+        });
+    }
+  }, [submit, page,movieType]);
+console.log(movieData);
 
   const getPageRange = (cur, total) => {
     const pagesRange = [];
@@ -69,10 +71,10 @@ function Home() {
   const finalTotalPage = Math.ceil(totalPage / 10);
   const pagesRange = getPageRange(page, finalTotalPage);
   console.log(pagesRange);
-  
+
   const handleSubmit = () => {
-    setSubmit(movieSearchInput)
-  }
+    setSubmit(movieSearchInput);
+  };
   const handleMovieSearch = (e) => {
     setMovieSearchInput(e.target.value);
   };
@@ -91,7 +93,8 @@ function Home() {
     setPage(item);
   };
   return (
-    <>{error&&<NotFount message={error} err={setError}/>}
+    <>
+      {error && <NotFount message={error} err={setError} />}
       <div
         style={{
           background: "whitesmoke",
@@ -100,15 +103,39 @@ function Home() {
         }}
       >
         <div>
-        <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:"0px",width:"300px", paddingTop:"20px"}}>
-          <input
-            type="text"
-            placeholder="Search movie"
-            onChange={(e) => handleMovieSearch(e)}
-          />
-          <button onClick={()=>{handleSubmit()}} className="btn-class"><FaSearch/>Search</button>
-         </div>
-         </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0px",
+              width: "400px",
+              paddingTop: "20px",
+            }}
+          >
+            
+            <input
+              type="text"
+              placeholder="Search movie"
+              onChange={(e) => handleMovieSearch(e)}
+            />
+            <button
+              onClick={() => {
+                handleSubmit();
+              }}
+              className="btn-class"
+            >
+              <FaSearch />
+              Search
+            </button>
+            <select onChange={(e)=>setMovieType(e.target.value.toLowerCase())}>
+            <option  value="Movies">Movies</option>
+            <option value="Series">Series</option>
+            <option value="Episode">Episode</option>
+          </select>
+          </div>
+          
+        </div>
         <div className="parent">
           {movieData.length > 0 &&
             movieData.map((item) => {
@@ -128,17 +155,20 @@ function Home() {
         </div>
         {movieData.length > 0 && (
           <div className="buttonClick">
-            <button onClick={handlePrevious} disabled={page === 1}  className="button">
+            <button
+              onClick={handlePrevious}
+              disabled={page === 1}
+              className="button"
+            >
               <FaAngleLeft />
             </button>
-            <div className="page"
-              
-            >
+            <div className="page">
               {pagesRange.map((item) =>
                 item === "..." ? (
                   <span className="span1">...</span>
                 ) : (
-                  <button  className="button"
+                  <button
+                    className="button"
                     style={{
                       backgroundColor: item === page ? "green" : "lightgray",
                     }}
